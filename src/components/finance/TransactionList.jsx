@@ -1,31 +1,73 @@
-import React from 'react';
-import { CreditCard, TrendingUp, TrendingDown, AlertCircle, Calendar, Tag, Edit2, Trash2 } from 'lucide-react';
-import { Card } from '../ui/Card';
-import { PlatformBadge } from '../ui/PlatformBadge';
-import { formatCurrency, getCategoryStyle } from '../../utils/helpers';
+import React, { useState } from 'react';
+import { CreditCard, TrendingUp, TrendingDown, AlertCircle, Calendar, Tag, Edit2, Trash2, Filter } from 'lucide-react';
+import { Card } from '../ui/Card.jsx';
+import { PlatformBadge } from '../ui/PlatformBadge.jsx';
+import { formatCurrency, getCategoryStyle } from '../../utils/helpers.js';
 
 export const TransactionList = ({ transactions, onEdit, onDelete, onOpenAdd }) => {
-  const activeTransactions = transactions.filter(t => !t.isFuture);
+  const [filter, setFilter] = useState('all');
+  const filteredTransactions = transactions.filter(t => {
+    if (t.isFuture) return false;
+    if (filter === 'all') return true;
+    return t.type === filter;
+  });
 
   return (
     <div className="lg:col-span-2 space-y-4">
-      <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-        <div className="h-8 w-1 bg-emerald-500 rounded-full"></div>
-        Recent Activity
-      </h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+          <div className="h-8 w-1 bg-emerald-500 rounded-full"></div>
+          Recent Activity
+        </h2>
+
+        {/* Filter Buttons */}
+        <div className="flex bg-white p-1 rounded-lg border border-gray-100 shadow-sm overflow-x-auto">
+          <button
+            onClick={() => setFilter('all')}
+            className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors whitespace-nowrap ${
+              filter === 'all' ? 'bg-slate-100 text-slate-800' : 'text-gray-500 hover:text-slate-600'
+            }`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setFilter('expense')}
+            className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors whitespace-nowrap ${
+              filter === 'expense' ? 'bg-red-50 text-red-600' : 'text-gray-500 hover:text-red-500'
+            }`}
+          >
+            Expenses
+          </button>
+          <button
+            onClick={() => setFilter('income')}
+            className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors whitespace-nowrap ${
+              filter === 'income' ? 'bg-emerald-50 text-emerald-600' : 'text-gray-500 hover:text-emerald-500'
+            }`}
+          >
+            Income
+          </button>
+          <button
+            onClick={() => setFilter('emergency')}
+            className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors whitespace-nowrap ${
+              filter === 'emergency' ? 'bg-amber-50 text-amber-600' : 'text-gray-500 hover:text-amber-500'
+            }`}
+          >
+            Family Fund
+          </button>
+        </div>
+      </div>
       
       <div className="space-y-3">
-        {activeTransactions.length === 0 ? (
+        {filteredTransactions.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-2xl border-2 border-gray-100 border-dashed">
             <CreditCard className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500 font-medium">No active transactions found.</p>
-            <p className="text-gray-400 text-sm mb-4">Start by adding your income or daily expenses.</p>
-            <button onClick={onOpenAdd} className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors shadow-lg shadow-slate-200">
-              Create First Entry
+            <p className="text-gray-500 font-medium">No {filter !== 'all' ? filter : ''} transactions found.</p>
+            <button onClick={onOpenAdd} className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors shadow-lg shadow-slate-200 mt-4">
+              Create Entry
             </button>
           </div>
         ) : (
-          activeTransactions.sort((a,b) => new Date(b.date) - new Date(a.date)).map((t) => (
+          filteredTransactions.sort((a,b) => new Date(b.date) - new Date(a.date)).map((t) => (
             <Card key={t.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between group hover:shadow-md transition-shadow border-l-4 border-l-transparent hover:border-l-indigo-500">
               
               {/* Icon & Details */}
