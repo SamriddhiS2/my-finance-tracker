@@ -15,7 +15,6 @@ export const useFinanceData = () => {
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth();
     
-    // Helper to get week number
     const getWeek = (d) => {
       const date = new Date(d);
       date.setHours(0, 0, 0, 0);
@@ -38,7 +37,6 @@ export const useFinanceData = () => {
     transactions.forEach(t => {
       const amount = parseFloat(t.amount);
       
-      // Separate Scheduled (Future) transactions
       if (t.isFuture) {
         if (t.type !== 'income') {
            futureCommitments += amount;
@@ -80,6 +78,5 @@ export const useFinanceData = () => {
     };
   }, [transactions]);
 
-  // Return everything the UI needs
   return { transactions, setTransactions, stats };
 };
